@@ -117,7 +117,7 @@ public class ArrayListTest {
 	// print array and ArrayList function
 	public static void printArrayAndList(String[] strArray, ArrayList<String> strList) {
 		for(int i = 0; i < strArray.length; i++) {
-			System.out.printf("strArray[%d]: %s\tstrList[%d]: %s%n", 
+			System.out.printf("strArray[%d]: %s\tstrList<%d>: %s%n", 
 					i, strArray[i], i, strList.get(i));
 		}
 	}
