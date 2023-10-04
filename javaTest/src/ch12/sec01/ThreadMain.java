@@ -2,7 +2,7 @@ package ch12.sec01;
 
 import java.awt.Toolkit;
 
-// make computer beep five times with one-second intervals
+// make computer beep five times with one-second intervals while printing "beep" in those same intervals
 public class ThreadMain {
 
 	public static void main(String[] args) throws InterruptedException {
@@ -26,7 +26,7 @@ public class ThreadMain {
 		thread.start();
 */
 		
-		// THIRD METHOD: temporary object using Thread; no need for another class; similar to first method
+		// THIRD METHOD: anonymous using Thread; no need for another class; similar to first method
 /*		Thread thread = new Thread() {
 			@Override
 			public void run() {
@@ -50,7 +50,7 @@ public class ThreadMain {
 		thread.start();
 */		
 
-		// FOURTH METHOD: temporary object using Runnable; similar to second method
+		// FOURTH METHOD: anonymous class using Runnable; similar to second method
 /*		Thread thread = new Thread(new Runnable() {
 
 			@Override
@@ -74,7 +74,7 @@ public class ThreadMain {
 		thread.start();
 */
 		
-		// FIFTH METHOD: temporary object using Runnable lambda expression
+		// FIFTH METHOD: anonymous class using Runnable lambda expression
 		Thread thread = new Thread(()-> {
 			try {
 				System.out.println("beep");
