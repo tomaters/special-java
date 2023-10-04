@@ -26,7 +26,7 @@ public class ThreadMain {
 		thread.start();
 */
 		
-		// THIRD METHOD: anonymous using Thread; no need for another class; similar to first method
+		// THIRD METHOD: anonymous class using Thread; no need for another class; similar to first method
 /*		Thread thread = new Thread() {
 			@Override
 			public void run() {
