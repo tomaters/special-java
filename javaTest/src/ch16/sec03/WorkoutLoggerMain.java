@@ -3,6 +3,7 @@ package ch16.sec03;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -31,12 +32,12 @@ public class WorkoutLoggerMain {
 	
 	private static void viewLog() {
 		Connection connection = connectToDatabase();
-		Statement statement = null;
+		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
 		try {
-			statement = connection.createStatement();
 			String selectStatement = "SELECT * FROM workoutlog ORDER BY workout_count ASC";
-			resultSet = statement.executeQuery(selectStatement);
+			preparedStatement = connection.prepareStatement(selectStatement);
+			resultSet = preparedStatement.executeQuery(selectStatement);
 			while(resultSet.next()) {
 				int workout_count = resultSet.getInt("workout_count");
 				String workout_type = resultSet.getString("workout_type");
@@ -50,7 +51,7 @@ public class WorkoutLoggerMain {
 			System.out.println("Query statement error");
 		} finally {
 			try {
-				statement.close();
+				preparedStatement.close();
 				resultSet.close();
 			} catch (SQLException e) {}
 		}
@@ -58,7 +59,7 @@ public class WorkoutLoggerMain {
 		
 	private static void enterNewWorkout() {
 		Connection connection = connectToDatabase();
-		Statement statement = null;
+		PreparedStatement preparedStatement = null;
 		try {
 			System.out.println("Enter Workout type > ");
 			String workout_type = scan.nextLine().trim();
@@ -68,18 +69,29 @@ public class WorkoutLoggerMain {
 			System.out.println("Enter Workout date (YYYY-MM-DD) > ");
 			String workout_date = scan.nextLine().trim();
 			System.out.println("Enter Calories lost > ");
-			int calories_lost = scan.nextInt();
+			int workout_calories = scan.nextInt();
 			scan.nextLine();
-			statement = connection.createStatement();
-			String insertStatement = String.format("INSERT INTO workoutlog VALUES (workoutlog_seq.nextval, '%s', '%d', '%s', '%d')", workout_type, workout_duration_minutes, workout_date, calories_lost);
-			int result = statement.executeUpdate(insertStatement);
+			
+//			statement = connection.createStatement();
+//			String insertStatement = String.format("INSERT INTO workoutlog VALUES (workoutlog_seq.nextval, '%s', '%d', '%s', '%d')", workout_type, workout_duration_minutes, workout_date, calories_lost);
+//			int result = statement.executeUpdate(insertStatement);
+			
+			String insertStatement = String.format("INSERT INTO workoutlog VALUES (workoutlog_seq.nextval, ?, ?, ?, ?)");
+			preparedStatement = connection.prepareStatement(insertStatement);
+			preparedStatement.setString(1, workout_type);
+			preparedStatement.setInt(2, workout_duration_minutes);
+			preparedStatement.setString(3, workout_date);
+			preparedStatement.setInt(4, workout_calories);
+			
+			int result = preparedStatement.executeUpdate();
 			if(result == 1)	System.out.println("Workout inserted successfully"); 
 			else System.out.println("Workout failed to insert");
 		} catch (SQLException e) {
 			System.out.println("Query statement error");
 		} finally {
 			try {
-				statement.close();
+				preparedStatement.close();
+				connection.close();
 			} catch (SQLException e) {}
 		}
 	}
@@ -87,7 +99,7 @@ public class WorkoutLoggerMain {
 	private static void editWorkout() {
 		Connection connection = connectToDatabase();
 		viewLog();
-		Statement statement = null;
+		PreparedStatement preparedStatement = null;
 		
 		try {
 			System.out.println("Workout Number to update >");
@@ -105,10 +117,10 @@ public class WorkoutLoggerMain {
 				
 			System.out.printf("(%s minutes) Update workout duration > %n", workouts.getWorkout_duration());
 			String _workout_duration = scan.nextLine().trim();
-			int workout_duration = 0;
+			int workout_duration_minutes = 0;
 			if(_workout_duration.equals("")) {
-				workout_duration = workouts.getWorkout_duration();
-			} else workout_duration = Integer.parseInt(_workout_duration);
+				workout_duration_minutes = workouts.getWorkout_duration();
+			} else workout_duration_minutes = Integer.parseInt(_workout_duration);
 				
 			System.out.printf("(%s) Update workout date (YY/MM/DD)> ", workouts.getWorkout_date());
 			String workout_date = scan.nextLine().trim();
@@ -124,12 +136,19 @@ public class WorkoutLoggerMain {
 				workout_calories = workouts.getWorkout_calories();
 			} else workout_calories = Integer.parseInt(_workout_calories);
 				
-			statement = connection.createStatement();
-			String updateStatement = String.format("UPDATE workoutlog SET workout_type = '%s', workout_duration_minutes = '%d', workout_date = '%s', "
-					+ "workout_calories = '%d' where workout_count = %d",
-					workout_type, workout_duration, workout_date, workout_calories, workout_count);
-			int count = statement.executeUpdate(updateStatement);
-			if(count == 0) {
+//			statement = connection.createStatement();
+			String updateStatement = String.format("UPDATE workoutlog SET workout_type = ?, workout_duration_minutes = ?, workout_date = ?, "
+					+ "workout_calories = ? where workout_count = ?");
+			preparedStatement = connection.prepareStatement(updateStatement);
+			preparedStatement.setString(1, workout_type);
+			preparedStatement.setInt(2, workout_duration_minutes);
+			preparedStatement.setString(3, workout_date);
+			preparedStatement.setInt(4, workout_calories);
+			preparedStatement.setInt(5, workout_count);
+			
+//			int result = statement.executeUpdate(updateStatement);
+			int result = preparedStatement.executeUpdate();
+			if(result == 0) {
 				System.out.printf("Workout %s failed to update%n", workout_count);
 			} else {
 				System.out.printf("Workout %s successfully updated%n", workout_count);
@@ -169,21 +188,26 @@ public class WorkoutLoggerMain {
 	
 	private static void removeWorkout() {
 		Connection connection = connectToDatabase();
-		Statement statement = null;
+		PreparedStatement preparedStatement = null;
 		viewLog();
 		try {
 			System.out.println("Enter Workout Number that you would like to delete > ");
 			int workout_number = scan.nextInt();
-			statement = connection.createStatement();
-			String deleteStatement = String.format("DELETE FROM workoutlog WHERE workout_count = %d%n", workout_number);
-			int result = statement.executeUpdate(deleteStatement);
-					if(result == 1)	System.out.println("Workout deleted successfully"); 
+//			statement = connection.createStatement();
+			String deleteStatement = String.format("DELETE FROM workoutlog WHERE workout_count = ?");
+//			int result = statement.executeUpdate(deleteStatement);
+			preparedStatement = connection.prepareStatement(deleteStatement);
+			preparedStatement.setInt(1, workout_number);
+			
+			int result = preparedStatement.executeUpdate();
+			if(result == 1)	System.out.println("Workout deleted successfully"); 
 					else System.out.printf("Workout number %d failed to delete. Please try again%n", workout_number);
 		} catch (SQLException e) {
 			System.out.println("Query statement error");
 		} finally {
 			try {
-				statement.close();
+				preparedStatement.close();
+				connection.close();
 			} catch (SQLException e) {}
 		}
 	}

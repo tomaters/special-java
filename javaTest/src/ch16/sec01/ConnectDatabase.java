@@ -18,11 +18,11 @@ public class ConnectDatabase {
 		try {
 			// 1. load driver
 			Class.forName("oracle.jdbc.driver.OracleDriver");
-			System.out.println("OracleDriver loading complete");
+//			System.out.println("OracleDriver loading complete");
 		
 			// 2. connect to oracle database
 			connection = DriverManager.getConnection(url, username, password);
-			System.out.println("Oracle connection established");
+//			System.out.println("Oracle connection established");
 		} catch (ClassNotFoundException | SQLException e) {
 			System.out.printf("Error: %s", e);
 		}	
