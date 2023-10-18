@@ -115,13 +115,7 @@ public class WorkoutLoggerMain {
 			if(workout_date.equals("")) {
 				System.out.println("Error: please try again");
 				return;
-			}
-			String[] workout_date_details = new String[3];
-			workout_date_details = workout_date.split("/");
-			int workout_year = Integer.parseInt(workout_date_details[0]);
-			int workout_month = Integer.parseInt(workout_date_details[1]);
-			int workout_day = Integer.parseInt(workout_date_details[2]);
-				
+			}				
 				
 			System.out.printf("(%d calories) Update calories lost > ", workouts.getWorkout_calories());
 			String _workout_calories = scan.nextLine();
@@ -131,9 +125,9 @@ public class WorkoutLoggerMain {
 			} else workout_calories = Integer.parseInt(_workout_calories);
 				
 			statement = connection.createStatement();
-			String updateStatement = String.format("UPDATE workoutlog SET workout_type = '%s', workout_duration_minutes = '%d', workout_date = '%d/%d/%d', "
+			String updateStatement = String.format("UPDATE workoutlog SET workout_type = '%s', workout_duration_minutes = '%d', workout_date = '%s', "
 					+ "workout_calories = '%d' where workout_count = %d",
-					workout_type, workout_duration, workout_year, workout_month, workout_day, workout_calories, workout_count);
+					workout_type, workout_duration, workout_date, workout_calories, workout_count);
 			int count = statement.executeUpdate(updateStatement);
 			if(count == 0) {
 				System.out.printf("Workout %s failed to update%n", workout_count);
