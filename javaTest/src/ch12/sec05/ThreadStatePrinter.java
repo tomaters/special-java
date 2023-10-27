@@ -3,6 +3,7 @@ package ch12.sec05;
 public class ThreadStatePrinter extends Thread {
 	// create thread to be checked
 	private Thread targetThread;
+	@SuppressWarnings("unused")
 	private boolean stopFlag;
 	
 	public ThreadStatePrinter(Thread targetThread) {
